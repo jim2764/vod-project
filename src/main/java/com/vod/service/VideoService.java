@@ -3,7 +3,9 @@ package com.vod.service;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -18,7 +20,9 @@ import com.vod.dto.TranscodePlanDto;
 import com.vod.dto.UploadRequestDto;
 import com.vod.dto.UploadResponseDto;
 import com.vod.dto.VideoDto;
+import com.vod.dto.VideoListDto;
 import com.vod.dto.VideoProcessingDto;
+import com.vod.dto.VideoStatusDto;
 import com.vod.entity.Video;
 import com.vod.enums.VideoStatus;
 import com.vod.exception.VideoBusinessException;
@@ -31,6 +35,7 @@ public class VideoService {
 
     private final String endpoint; 
     private final String rawBucket;
+    private final Long uploadTimeLimit;
     private final String allowedExtension;
     private final String allowedMimeType;
     private final Long maxVideoSize;
@@ -43,6 +48,7 @@ public class VideoService {
     public VideoService(
         @Value("${minio.endpoint}") String endpoint,
         @Value("${minio.buckets.raw}") String rawBucket,
+        @Value("${minio.upload-time-limit}") Long uploadTimeLimit,
         @Value("${video.allowed-extension}") String allowedExtension,
         @Value("${video.allowed-mime-type}") String allowedMimeType,
         @Value("${video.max-video-size}") Long maxVideoSize,
@@ -53,6 +59,7 @@ public class VideoService {
     ) {
         this.endpoint = endpoint;
         this.rawBucket = rawBucket;
+        this.uploadTimeLimit = uploadTimeLimit;
         this.allowedExtension = allowedExtension;
         this.allowedMimeType = allowedMimeType;
         this.maxVideoSize = maxVideoSize;
@@ -62,34 +69,57 @@ public class VideoService {
         this.videoRepository = videoRepository;
     }
 
+    public List<VideoStatusDto> getBatchStatuses(List<String> ids) {
+        LocalDateTime threshold = LocalDateTime.now().minusMinutes(uploadTimeLimit);
+
+        return videoRepository.findAllVideosByIds(ids, threshold)
+                .stream()
+                .map(video -> VideoStatusDto.from(video))
+                .toList();
+    }
+
+    public List<VideoListDto> getAllVideo() {
+        LocalDateTime threshold = LocalDateTime.now().minusMinutes(uploadTimeLimit);
+
+        return videoRepository.findAllVideos(threshold)
+                .stream()
+                .map(video -> VideoListDto.from(video))
+                .toList();
+                
+    }
+
     public UploadResponseDto createUploadPolicy(UploadRequestDto requestDto) {
         // video validation
         videoPreValidation(requestDto);
 
         // generate presigned policy
         String videoId = UUID.randomUUID().toString();
-        String videoName = videoId + requestDto.extension();
-        var formData = minioService.generatePresignedPostFormData(videoName, requestDto.mimeType());
+        String videoKey = videoId + requestDto.extension();
+        var formData = minioService.generatePresignedPostFormData(videoKey, requestDto.mimeType());
         
         // create video data to DB
         Video video = Video.create(videoId, requestDto.videoName());
         videoRepository.save(video);
         
         String uploadUrl = "%s/upload/%s".formatted(endpoint, rawBucket);
-        return UploadResponseDto.of(uploadUrl, videoName, requestDto.mimeType(), formData);
+        return UploadResponseDto.of(videoId, videoKey, uploadUrl, requestDto, formData);
+    }
+
+    public void processVideo(VideoDto videoDto) {
+        // Update video status from UPLOADING to PROCESSING
+        videoRepository.updateStatus(videoDto.id(), VideoStatus.UPLOADING, VideoStatus.PROCESSING);
+
+        processVideoPipeline(videoDto);
     }
 
     @Async 
-    public void processVideoPipeline(VideoDto videoDto) {
+    private void processVideoPipeline(VideoDto videoDto) {
         try {
-            // Update video status from UPLOADING to PROCESSING
-            videoRepository.updateStatus(videoDto.id(), VideoStatus.UPLOADING, VideoStatus.PROCESSING);
-    
             // Get Video Download Url
-            String downloadUrl = minioService.generatePresignedDownloadUrl(videoDto.name());
+            String downloadUrl = minioService.generatePresignedDownloadUrl(videoDto.key());
     
             // Probe video
-            var videoProcessingDto = VideoProcessingDto.of(videoDto.id(), videoDto.name(), downloadUrl);
+            var videoProcessingDto = VideoProcessingDto.of(videoDto.id(), videoDto.key(), downloadUrl);
             TranscodePlanDto transcodePlanDto = videoProcessingService.probeVideo(videoProcessingDto);
     
             // Transcode and upload video
@@ -141,13 +171,13 @@ public class VideoService {
         try {
             videoRepository.markAsFailed(videoDto.id(), errorMessage);
         } catch(Exception e) {
-            log.error("[Recover] DB recover異常 (Video: {})", videoDto.name(), e);
+            log.error("[Recover] DB recover異常 (Video: {})", videoDto.key(), e);
         }
 
         try {
-            minioService.removeVideo(videoDto.name());
+            minioService.removeVideo(videoDto.key());
         } catch(Exception e) {
-            log.error("[Recover] Minio recover異常 (Video: {})", videoDto.name(), e);
+            log.error("[Recover] Minio recover異常 (Video: {})", videoDto.key(), e);
         }
     }
 }

@@ -32,11 +32,31 @@ public class Video {
     }
 
     // --- Getter & Setter ---
+    public String getId() {
+        return this.id;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
 
+    public String getVideoName() {
+        return this.videoName;
+    }
+
     public void setVideoName(String videoName) {
         this.videoName = videoName;
+    }
+
+    public VideoStatus getstatus() {
+        return this.status;
+    }
+
+    public String getErrorMsg() {
+        return this.errorMsg;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return this.createdAt;
     }
 }

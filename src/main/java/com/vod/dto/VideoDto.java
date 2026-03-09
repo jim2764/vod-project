@@ -4,16 +4,17 @@ import java.nio.file.Path;
 
 public record VideoDto(
     String id,
-    String name
+    String key
 ) {
     public static VideoDto from(ProcessRequestDto processRequestDto) {
+
         String fullKey = processRequestDto.key();
 
-        String videoName = Path.of(fullKey).getFileName().toString();
+        String videoKey = Path.of(fullKey).getFileName().toString();
 
-        int dotIndex = videoName.lastIndexOf('.');
-        String videoId = (dotIndex == -1) ? videoName : videoName.substring(0, dotIndex);
+        int dotIndex = videoKey.lastIndexOf('.');
+        String videoId = (dotIndex == -1) ? videoKey : videoKey.substring(0, dotIndex);
 
-        return new VideoDto(videoId, videoName);
+        return new VideoDto(videoId, videoKey);
     }
 }

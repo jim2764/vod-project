@@ -60,11 +60,14 @@ public class VideoProcessingService {
     
             int exitCode = probeProcess.waitFor();
     
-            if (exitCode != 0) throw new VideoSystemException("[Probe] ffprobe error exit code: %d (Video: %s)".formatted(exitCode, videoProcessingDto.name()));
+            System.out.println(probeResult);
+
+            if (exitCode != 0) throw new VideoSystemException("[Probe] ffprobe error exit code: %d (Video: %s)".formatted(exitCode, videoProcessingDto.key()));
     
             var probeResultDto = objectMapper.readValue(probeResult, ProbeResultDto.class);
 
-            return deepVideoValidation(videoProcessingDto.name(), probeResultDto);
+            // 這裏應該傳videoName進去
+            return deepVideoValidation(videoProcessingDto.id(), probeResultDto);
         } catch(InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new VideoSystemException(e.getMessage(), e);
@@ -149,7 +152,7 @@ public class VideoProcessingService {
             Process process = pb.start();
             int exitCode = process.waitFor();
     
-            if (exitCode != 0) throw new VideoSystemException("[Transcode] ffmpeg error exit code: %d (Video: %s)".formatted(exitCode, videoProcessingDto.name()));
+            if (exitCode != 0) throw new VideoSystemException("[Transcode] ffmpeg error exit code: %d (Video: %s)".formatted(exitCode, videoProcessingDto.key()));
             
             uploadAction.accept(tempWorkDir);
 
@@ -163,24 +166,24 @@ public class VideoProcessingService {
                 try {
                     FileSystemUtils.deleteRecursively(tempWorkDir);
                 } catch(IOException e) {
-                    log.error("[Recovey] 暫存檔刪除異常 (Video: %s)".formatted(videoProcessingDto.name()));
+                    log.error("[Recovey] 暫存檔刪除異常 (Video: %s)".formatted(videoProcessingDto.key()));
                 }
         }
     }
 
     // Video deep validation
-    private TranscodePlanDto deepVideoValidation(String videoName , ProbeResultDto resultDto){
-        if (resultDto.format() == null || resultDto.streams() == null) throw new VideoBusinessException("[Probe] 影片格式有問題 (Video: %s)".formatted(videoName));
+    private TranscodePlanDto deepVideoValidation(String videoId , ProbeResultDto resultDto){
+        if (resultDto.format() == null || resultDto.streams() == null) throw new VideoBusinessException("[Probe] 影片格式有問題 (Video: %s)".formatted(videoId));
 
-        if (!resultDto.streams().stream().anyMatch(s -> "video".equals(s.codecType()))) throw new VideoBusinessException("[Probe] 尚未有影片 Stream (Video: %s)".formatted(videoName));
+        if (!resultDto.streams().stream().anyMatch(s -> "video".equals(s.codecType()))) throw new VideoBusinessException("[Probe] 尚未有影片 Stream (Video: %s)".formatted(videoId));
 
         double duration = safeStringToDouble(resultDto.format().duration());
-        if (duration < 1) throw new VideoBusinessException("[Probe] 影片的 Duration 有問題 (Video:%s)".formatted(videoName));
+        if (duration < 1) throw new VideoBusinessException("[Probe] 影片的 Duration 有問題 (Video:%s)".formatted(videoId));
 
         String formatName = resultDto.format().formatName();
-        if (formatName == null || !formatName.contains("mp4")) throw new VideoBusinessException("[Probe] 只支援 .mp4 (Video: %s)".formatted(videoName));
+        if (formatName == null || !formatName.contains("mp4")) throw new VideoBusinessException("[Probe] 只支援 .mp4 (Video: %s)".formatted(videoId));
 
-        if (resultDto.format().probeScore() < 50) throw new VideoBusinessException("[Probe] Probe Score分數過低, 影片可能損毀 (Video: %s)".formatted(videoName));
+        if (resultDto.format().probeScore() < 50) throw new VideoBusinessException("[Probe] Probe Score分數過低, 影片可能損毀 (Video: %s)".formatted(videoId));
 
         return TranscodePlanDto.from(resultDto);
     }

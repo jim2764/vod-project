@@ -1,9 +1,11 @@
-package com.vod; // 放在最外層的 package
+package com.vod;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
 public class VideoApplication {
 
     public static void main(String[] args) {

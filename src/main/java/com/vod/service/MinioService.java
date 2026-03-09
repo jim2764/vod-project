@@ -52,10 +52,10 @@ public class MinioService {
     }
 
     // Generate upload presigned post form data
-    public PresignedPostFormDataDto generatePresignedPostFormData(String videoName, String mimeType) {
+    public PresignedPostFormDataDto generatePresignedPostFormData(String videoKey, String mimeType) {
         try {
             PostPolicy policy = new PostPolicy(rawBucket, ZonedDateTime.now().plusMinutes(uploadTimeLimit));
-            policy.addEqualsCondition("key", videoName);
+            policy.addEqualsCondition("key", videoKey);
             policy.addContentLengthRangeCondition(minVideoSize, maxVideoSize);
             policy.addEqualsCondition("Content-Type", mimeType);
     
@@ -63,23 +63,23 @@ public class MinioService {
     
             return PresignedPostFormDataDto.fromMap(formData);
         } catch(Exception e) {
-            throw new MinioOperationException("[Minio] 建立 Presigned post formData 錯誤 (Video: %s)".formatted(videoName), e);
+            throw new MinioOperationException("[Minio] 建立 Presigned post formData 錯誤 (Video: %s)".formatted(videoKey), e);
         }
     }
 
     // Generate download presigned URL
-    public String generatePresignedDownloadUrl(String videoName) {
+    public String generatePresignedDownloadUrl(String videoKey) {
         try {
             return minioClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()
                     .method(Method.GET)
                     .bucket(rawBucket)
-                    .object(videoName)
+                    .object(videoKey)
                     .expiry(downloadTimeLimit, TimeUnit.HOURS)
                     .build()
             );
         } catch(Exception e) {
-            throw new MinioOperationException("[Minio] 建立 Presigned download url 錯誤 (Video: %s)".formatted(videoName), e);
+            throw new MinioOperationException("[Minio] 建立 Presigned download url 錯誤 (Video: %s)".formatted(videoKey), e);
         }
     }
 
@@ -103,7 +103,7 @@ public class MinioService {
                             .build()
                     );
                 } catch(Exception e) {
-                    throw new MinioOperationException("[Minio] 上傳 Segments 錯誤 (Video: %s)".formatted(videoDto.name()), e);
+                    throw new MinioOperationException("[Minio] 上傳 Segments 錯誤 (Video: %s)".formatted(videoDto.key()), e);
                 }
             });
         } catch(IOException e) {
@@ -111,16 +111,16 @@ public class MinioService {
         }
     }
 
-    public void removeVideo(String videoName) {
+    public void removeVideo(String videoKey) {
         try {
             minioClient.removeObject(
                 RemoveObjectArgs.builder()
                     .bucket(rawBucket)
-                    .object(videoName)  
+                    .object(videoKey)  
                     .build()
             );
         } catch(Exception e) {
-            throw new MinioOperationException("[Minio] 刪除影片錯誤 (Video: %s)".formatted(videoName), e);
+            throw new MinioOperationException("[Minio] 刪除影片錯誤 (Video: %s)".formatted(videoKey), e);
         }
     }
 

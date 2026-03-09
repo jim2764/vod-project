@@ -10,8 +10,8 @@ services:
     environment:
       TZ: Asia/Taipei
     volumes:
-      - ..:/workspaces/vod-project:cached   # 專案程式碼
-      - maven-repo:/home/vscode/.m2          # Maven 零件庫
+      - ..:/workspaces/vod-project:cached
+      - maven-repo:/home/vscode/.m2     
     networks:
       - vod-net
     command: ["sleep", "infinity"] 
@@ -23,7 +23,7 @@ services:
       MYSQL_ROOT_PASSWORD: "YOUR_MYSQL_ROOT_PASSWORD"
       TZ: Asia/Taipei
     volumes:
-      - ../docker-data/mysql:/var/lib/mysql     # 持久化資料庫
+      - ../docker-data/mysql:/var/lib/mysql
     networks:
       - vod-net
 
@@ -35,7 +35,7 @@ services:
       MINIO_ROOT_PASSWORD: "YOUR_MINIO_ROOT_PASSWORD"
       TZ: Asia/Taipei
     volumes:
-      - ../docker-data/minio:/data              # 持久化影片檔案
+      - ../docker-data/minio:/data
     networks:
       - vod-net
     command: server /data --console-address ":9001"

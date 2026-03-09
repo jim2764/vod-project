@@ -6,7 +6,11 @@ import com.vod.dto.ProcessRequestDto;
 import com.vod.dto.UploadRequestDto;
 import com.vod.dto.UploadResponseDto;
 import com.vod.dto.VideoDto;
+import com.vod.dto.VideoListDto;
+import com.vod.dto.VideoStatusDto;
 import com.vod.service.VideoService;
+
+import java.util.List;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +22,20 @@ public class VideoController {
 
     public VideoController(VideoService videoService) {
         this.videoService = videoService;
+    }
+
+    @GetMapping("/batch-status")
+    public ApiResponse<List<VideoStatusDto>> getBatchStatus(@RequestParam List<String> ids) {
+        var videoStatuses =  videoService.getBatchStatuses(ids);
+
+        return ApiResponse.ok(videoStatuses);
+    }
+
+    @GetMapping("/all-video")
+    public ApiResponse<List<VideoListDto>> getAllVideo() {
+        var videos = videoService.getAllVideo();
+
+        return ApiResponse.ok(videos);
     }
 
     // Create presigned post policy
@@ -33,7 +51,7 @@ public class VideoController {
     public ApiResponse<Void> processVideoPipeline(@RequestBody ProcessRequestDto processRequestDto) {
         var video = VideoDto.from(processRequestDto);
 
-        videoService.processVideoPipeline(video);
+        videoService.processVideo(video);
 
         return ApiResponse.ok();
     }
