@@ -19,7 +19,7 @@ services:
     container_name: vod-mysql
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: "YOUR_MYSQL_ROOT_PASSWORD"
+      MYSQL_ROOT_PASSWORD: "YOUR_ROOT_PASSWORD"
       MYSQL_DATABASE: video_platform
       TZ: Asia/Taipei
     volumes:
@@ -43,6 +43,7 @@ services:
       - vod-net
     command: server /data --console-address ":9001"
   createbuckets:
+    container_name: vod-createbuckets
     image: minio/mc
     depends_on:
       - minio

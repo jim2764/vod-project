@@ -50,8 +50,9 @@ public class VideoController {
     @PostMapping("/webhook")
     public ApiResponse<Void> processVideoPipeline(@RequestBody ProcessRequestDto processRequestDto) {
         var video = VideoDto.from(processRequestDto);
-
-        videoService.processVideo(video);
+        
+        videoService.changeVideoStatus(video);
+        videoService.processVideoPipeline(video);
 
         return ApiResponse.ok();
     }

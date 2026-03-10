@@ -105,13 +105,13 @@ public class VideoService {
         return UploadResponseDto.of(videoId, videoKey, uploadUrl, requestDto, formData);
     }
 
-    public void processVideo(VideoDto videoDto) {
+    public void changeVideoStatus(VideoDto videoDto) {
         // Update video status from UPLOADING to PROCESSING
         videoRepository.updateStatus(videoDto.id(), VideoStatus.UPLOADING, VideoStatus.PROCESSING);
     }
 
     @Async("videoExecutor")
-    private void processVideoPipeline(VideoDto videoDto) {
+    public void processVideoPipeline(VideoDto videoDto) {
         try {
             // Get Video Download Url
             String downloadUrl = minioService.generatePresignedDownloadUrl(videoDto.key());

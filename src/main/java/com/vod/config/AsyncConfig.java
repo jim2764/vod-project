@@ -16,7 +16,7 @@ public class AsyncConfig {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         
         executor.setCorePoolSize(2); 
-        executor.setMaxPoolSize(2);
+        executor.setMaxPoolSize(4);
         executor.setQueueCapacity(500);
         executor.setThreadNamePrefix("FFmpeg-Worker-");
         executor.initialize();

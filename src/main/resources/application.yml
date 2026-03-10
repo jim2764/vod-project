@@ -1,7 +1,7 @@
 minio:
   endpoint: http://vod-minio:9000
-  access-key: "YOUR_ACCESS_KEY"
-  secret-key: "YOUR_SECRET_KEY"
+  access-key: "YOUR_MINIO_ROOT_USER"
+  secret-key: "YOUR_MINIO_ROOT_PASSWORD"
   upload-time-limit: 10  # miutes
   download-time-limit: 3 # hours
   buckets:
@@ -21,7 +21,7 @@ spring:
   datasource:
     url: jdbc:mysql://vod-mysql:3306/video_platform?serverTimezone=UTC&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: "YOUR_PASSWORD"
+    password: "YOUR_ROOT_PASSWORD"
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
