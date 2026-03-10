@@ -108,11 +108,9 @@ public class VideoService {
     public void processVideo(VideoDto videoDto) {
         // Update video status from UPLOADING to PROCESSING
         videoRepository.updateStatus(videoDto.id(), VideoStatus.UPLOADING, VideoStatus.PROCESSING);
-
-        processVideoPipeline(videoDto);
     }
 
-    @Async 
+    @Async("videoExecutor")
     private void processVideoPipeline(VideoDto videoDto) {
         try {
             // Get Video Download Url

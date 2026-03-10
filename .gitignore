@@ -7,10 +7,6 @@ target/
 logs/
 *.log
 
-# Docker 資料庫數據 (只忽略資料，保留資料夾架構)
-docker-data/*
-!docker-data/**/.gitkeep
-
 # IDE 個人設定
 .vscode/
 .idea/

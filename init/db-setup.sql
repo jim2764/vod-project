@@ -1,0 +1,18 @@
+CREATE DATABASE IF NOT EXISTS video_platform CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+USE video_platform;
+
+-- Video Status
+-- 0 UPLOADING
+-- 1 PROCESSING
+-- 2 READY
+-- 3 FAILED
+CREATE TABLE IF NOT EXISTS videos (
+    id VARCHAR(255) NOT NULL,
+    video_name VARCHAR(255) NOT NULL,
+    status TINYINT NOT NULL DEFAULT 0, 
+    error_msg VARCHAR(255),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB;
+

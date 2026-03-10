@@ -59,8 +59,6 @@ public class VideoProcessingService {
             }
     
             int exitCode = probeProcess.waitFor();
-    
-            System.out.println(probeResult);
 
             if (exitCode != 0) throw new VideoSystemException("[Probe] ffprobe error exit code: %d (Video: %s)".formatted(exitCode, videoProcessingDto.key()));
     
