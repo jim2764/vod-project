@@ -129,4 +129,4 @@ docker exec -d front-app /bin/sh -c "npm run dev --host 0.0.0.0"
 ## 📬 聯絡資訊
 * **姓名**：Jim Lin
 * **Email**：jim2345678@gmail.com
-* **Github**: [jim2764](https://github.com/jim2764)
+* **GitHub**: [jim2764](https://github.com/jim2764)
