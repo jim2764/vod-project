@@ -69,7 +69,7 @@
   * **Spring Boot 3**
   * **MySQL**
   * **MinIO (Object Storage)**
-  * **FFmpeg / FFprobe**: 影片轉碼、封面截取與格式驗證
+  * **FFmpeg / FFprobe**
   * **Presigned Post Policy (安全直傳上傳)**
   * **URL Signing (數位簽章觀看)**
 ### 前端
