@@ -97,16 +97,18 @@ git clone https://github.com/jim2764/vod-project.git
 docker compose -f vod-project/.devcontainer/docker-compose.yml up -d
 docker compose -f vod-front/.devcontainer/docker-compose.yml up -d
 ```
-### 3. 執行Spring Boot & Vue
-#### 終端機執行
+### 3. 執行程式
+#### 執行Spring Boot
 ```bash
 docker exec -t vod-app /bin/sh -c "mvn spring-boot:run"
+```
+#### 再開啟另一個終端機, 執行Vue
+```bash
 docker exec -t front-app /bin/sh -c "npm run dev --host 0.0.0.0"
 ```
-#### 背景執行
+### 4. 打開瀏覽器
 ```bash
-docker exec -d vod-app /bin/sh -c "mvn spring-boot:run"
-docker exec -d front-app /bin/sh -c "npm run dev --host 0.0.0.0"
+http://localhost:5173/
 ```
 
 
