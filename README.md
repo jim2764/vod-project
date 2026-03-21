@@ -43,7 +43,7 @@
 ## 🏗️ 系統架構
 
 ### 影片上傳與非同步處理
-<img width="713" height="795" alt="Image" src="https://github.com/user-attachments/assets/426fce2f-3328-4919-8682-50e325f47d9e" />
+<img width="635" height="642" alt="Image" src="https://github.com/user-attachments/assets/cd24480f-46eb-46bd-b638-2f1620a67e36" />
 
 * **安全授權**：Vue 向 Spring Boot 申請 Pre-signed Policy，確保上傳行為合法。
 * **效能直傳**：Vue 跳過後端直接上傳影片至 MinIO，節省Spring Boot伺服器頻寬。
@@ -51,9 +51,9 @@
 * **狀態追蹤**：Vue 透過 Polling 即時獲取影片狀態。
 
 ### 安全串流播放
-<img width="711" height="756" alt="Image" src="https://github.com/user-attachments/assets/bb1fce36-f5e4-4cb8-83cb-10d1012e58f3" />
+<img width="681" height="615" alt="Image" src="https://github.com/user-attachments/assets/5f527c7b-365c-4b56-90c2-d50245103fd6" />
 
-* **網址簽名**：Spring Boot 產出帶有 MD5 數位簽章與時效的 Signed URL。
+* **網址簽名**：Spring Boot 產生Secure Link。
 * **安全校驗**：Nginx Secure Link 即時比對簽章，防止非法盜連。
 * **串流播放**：驗證通過後由 Nginx 分發 HLS 檔案，支援自適應畫質播放。
 
@@ -71,7 +71,7 @@
   * **MinIO (Object Storage)**
   * **FFmpeg / FFprobe**
   * **Presigned Post Policy (安全直傳上傳)**
-  * **URL Signing (數位簽章觀看)**
+  * **Secure Link (安全觀看)**
 ### 前端
   * **Vue 3**
   * **HLS.js**
