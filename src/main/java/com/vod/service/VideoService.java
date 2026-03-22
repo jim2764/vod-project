@@ -141,6 +141,8 @@ public class VideoService {
     }
 
     public PlayResponseDto generatePlayUrl(String videoId) {
+        videoPlayValidation(videoId);
+
         long expires = Instant.now().plus(Duration.ofHours(3)).getEpochSecond();
         String realPathDir = "/hls-video/%s/".formatted(videoId);
         String stringToSign = "%d!%s!%s".formatted(expires, realPathDir, secureLinkSecret);
@@ -163,6 +165,10 @@ public class VideoService {
         if (!allowedExtension.equalsIgnoreCase(requestDto.extension())) throw new VideoBusinessException("[Pre-Validation] 不支援的格式: %s (Video: %s)".formatted(requestDto.extension(), requestDto.videoName()));
         if (!allowedMimeType.equalsIgnoreCase(requestDto.mimeType())) throw new VideoBusinessException("[Pre-Validation] 不支援的 MIME 類型: %s (Video: %s)".formatted(requestDto.mimeType(), requestDto.videoName()));
         if (requestDto.size() > maxVideoSize) throw new VideoBusinessException("[Pre-Validation] 影片檔案過大，不得超過 2GB (Video: %s)".formatted(requestDto.videoName()));
+    }
+
+    private void videoPlayValidation(String videoId) {
+        if (!videoRepository.existsById(videoId)) throw new VideoBusinessException("[Play-Validation] 影片不存在 (video: %s)".formatted(videoId));
     }
 
     private void recoverVideo(VideoDto videoDto, String errorMessage) {

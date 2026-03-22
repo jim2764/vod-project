@@ -189,7 +189,7 @@ public class VideoProcessingService {
     private double safeStringToDouble(String text) {
         try {
             return Double.parseDouble(text);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | NullPointerException e) {
             return 0.0;
         }
     }

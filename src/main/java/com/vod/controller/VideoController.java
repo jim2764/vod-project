@@ -42,7 +42,7 @@ public class VideoController {
     @PostMapping("/presigned-policy")
     public ApiResponse<UploadResponseDto> generatePresignedPolicy(@RequestBody UploadRequestDto requestDto) {
         var response = videoService.createUploadPolicy(requestDto);
-
+        
         return ApiResponse.ok(response);
     }
 
